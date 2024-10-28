@@ -1,5 +1,11 @@
 # Advanced RAG by Weights & Biasis
 
+Contents - 
+
+1.) [Basic RAG Pipeline](#basic-rag-pipeline)
+
+2.) [Advanced RAG Pipeline](#advanced-rag-pipeline)
+
 ## Basic RAG Pipeline
 <img width="1206" alt="image" src="https://github.com/user-attachments/assets/c69c0595-124d-4ed0-9766-d86eb98eceaa">
 
@@ -152,3 +158,270 @@ Not all evaluations require ground truth. Here are some cases where we can evalu
 **Evaluation with Ground Truth (Reference Evaluation):**
 
 When we have a gold standard reference (a "correct" answer), we can perform reference evaluation. This is often used to evaluate the structure of a response or to check if it includes specific information that is expected.
+
+## Metrics
+
+# Retrieval Metrics Explanation
+
+The [retrieval_metrics.py](https://github.com/wandb/edu/blob/main/rag-advanced/notebooks/scripts/retrieval_metrics.py) module contains several functions designed to evaluate the performance of retrieval systems using various metrics. Below is a detailed explanation of each metric function, including its purpose, inputs, outputs, and usage.
+
+---
+
+### 1. `compute_hit_rate`
+
+```python:rag-advanced/notebooks/scripts/retrieval_metrics.py
+def compute_hit_rate(model_output: List[Dict[str, Any]], contexts: List[Dict[str, Any]]) -> float:
+```
+
+### **What It Does**
+Calculates the **Hit Rate (Precision)** for a single query. This metric measures the proportion of retrieved documents that are relevant.
+
+### **Input**
+- `model_output` (`List[Dict[str, Any]]`): A list of retrieved documents from the model. Each dictionary contains:
+  - `'source'`: A unique identifier for the document.
+  - `'score'`: The relevance score of the document.
+- `contexts` (`List[Dict[str, Any]]`): A list of dictionaries representing the relevant contexts. Each dictionary contains:
+  - `'source'`: A unique identifier for the relevant document.
+  - `'relevance'`: The relevance score (non-zero indicates relevance).
+
+### **Output**
+- `float`: The hit rate (precision), representing the fraction of retrieved documents that are relevant.
+
+### **Why It Is Used**
+Hit Rate provides a straightforward measure of retrieval accuracy by indicating how many of the retrieved documents are actually relevant to the query. It is useful for assessing the effectiveness of the retrieval system in returning pertinent results.
+
+---
+
+### 2. `compute_mrr`
+
+```python:rag-advanced/notebooks/scripts/retrieval_metrics.py
+def compute_mrr(model_output: List[Dict[str, Any]], contexts: List[Dict[str, Any]]) -> float:
+```
+
+### **What It Does**
+Calculates the **Mean Reciprocal Rank (MRR)** for a single query. MRR measures the rank of the first relevant document in the retrieved list.
+
+### **Input**
+- `model_output` (`List[Dict[str, Any]]`): A list of retrieved documents from the model. Each dictionary contains:
+  - `'source'`: A unique identifier for the document.
+  - `'score'`: The relevance score of the document.
+- `contexts` (`List[Dict[str, Any]]`): A list of dictionaries representing the relevant contexts. Each dictionary contains:
+  - `'source'`: A unique identifier for the relevant document.
+  - `'relevance'`: The relevance score (non-zero indicates relevance).
+
+### **Output**
+- `float`: The MRR score, indicating the position of the first relevant document. If no relevant document is found, it returns `0.0`.
+
+### **Why It Is Used**
+MRR is particularly useful in scenarios where the user is primarily interested in the first relevant result. It provides insight into how quickly the retrieval system can surface a relevant document, enhancing user satisfaction by minimizing the time to find pertinent information.
+
+---
+
+### 3. `compute_ndcg`
+
+```python:rag-advanced/notebooks/scripts/retrieval_metrics.py
+def compute_ndcg(model_output: List[Dict[str, Any]], contexts: List[Dict[str, Any]]) -> float:
+```
+
+### **What It Does**
+Calculates the **Normalized Discounted Cumulative Gain (NDCG)** for a single query. NDCG evaluates the ranking quality of the retrieved documents based on their relevance scores.
+
+### **Input**
+- `model_output` (`List[Dict[str, Any]]`): A list of retrieved documents from the model. Each dictionary contains:
+  - `'source'`: A unique identifier for the document.
+- `contexts` (`List[Dict[str, Any]]`): A list of dictionaries representing the relevant contexts. Each dictionary contains:
+  - `'source'`: A unique identifier for the relevant document.
+  - `'relevance'`: The relevance score of the document (0, 1, or 2).
+
+### **Output**
+- `float`: The NDCG score, which ranges from 0.0 to 1.0. A higher score indicates better ranking quality.
+
+### **Why It Is Used**
+NDCG accounts for the position of relevant documents in the ranked list, giving higher importance to relevant documents appearing earlier. It provides a nuanced evaluation of retrieval performance by considering both the relevance and the order of the results, making it valuable for optimizing ranking algorithms.
+
+---
+
+### 4. `compute_map`
+
+```python:rag-advanced/notebooks/scripts/retrieval_metrics.py
+def compute_map(model_output: List[Dict[str, Any]], contexts: List[Dict[str, Any]]) -> float:
+```
+
+### **What It Does**
+Calculates the **Mean Average Precision (MAP)** for a single query. MAP measures the average precision across all relevant documents retrieved.
+
+### **Input**
+- `model_output` (`List[Dict[str, Any]]`): A list of retrieved documents from the model. Each dictionary contains:
+  - `'source'`: A unique identifier for the document.
+  - `'score'`: The relevance score of the document.
+- `contexts` (`List[Dict[str, Any]]`): A list of dictionaries representing the relevant contexts. Each dictionary contains:
+  - `'source'`: A unique identifier for the relevant document.
+  - `'relevance'`: The relevance score (non-zero indicates relevance).
+
+### **Output**
+- `float`: The MAP score, representing the average precision across all relevant documents. If no relevant documents are found, it returns `0.0`.
+
+### **Why It Is Used**
+MAP provides a single-figure measure of quality that accounts for both precision and recall across different recall levels. It is especially useful when evaluating systems that need to retrieve all relevant documents, offering a comprehensive assessment of retrieval performance.
+
+---
+
+### 5. `compute_precision`
+
+```python:rag-advanced/notebooks/scripts/retrieval_metrics.py
+def compute_precision(model_output: List[Dict[str, Any]], contexts: List[Dict[str, Any]]) -> float:
+```
+
+### **What It Does**
+Calculates the **Precision** for a single query. Precision measures the proportion of retrieved documents that are relevant.
+
+### **Input**
+- `model_output` (`List[Dict[str, Any]]`): A list of retrieved documents from the model. Each dictionary contains:
+  - `'source'`: A unique identifier for the document.
+  - `'score'`: The relevance score of the document.
+- `contexts` (`List[Dict[str, Any]]`): A list of dictionaries representing the relevant contexts. Each dictionary contains:
+  - `'source'`: A unique identifier for the relevant document.
+  - `'relevance'`: The relevance score (non-zero indicates relevance).
+
+### **Output**
+- `float`: The Precision score, indicating the fraction of retrieved documents that are relevant. If no documents are retrieved, it returns `0.0`.
+
+### **Why It Is Used**
+Precision provides a measure of the accuracy of the retrieval system by indicating how many of the retrieved documents are actually relevant. It is essential for understanding the reliability of the system in returning pertinent information.
+
+---
+
+### 6. `compute_recall`
+
+```python:rag-advanced/notebooks/scripts/retrieval_metrics.py
+def compute_recall(model_output: List[Dict[str, Any]], contexts: List[Dict[str, Any]]) -> float:
+```
+
+### **What It Does**
+Calculates the **Recall** for a single query. Recall measures the proportion of relevant documents that have been retrieved over the total amount of relevant documents.
+
+### **Input**
+- `model_output` (`List[Dict[str, Any]]`): A list of retrieved documents from the model. Each dictionary contains:
+  - `'source'`: A unique identifier for the document.
+  - `'score'`: The relevance score of the document.
+- `contexts` (`List[Dict[str, Any]]`): A list of dictionaries representing the relevant contexts. Each dictionary contains:
+  - `'source'`: A unique identifier for the relevant document.
+  - `'relevance'`: The relevance score (non-zero indicates relevance).
+
+### **Output**
+- `float`: The Recall score, indicating the fraction of relevant documents that were retrieved. If there are no relevant documents, it returns `0.0`.
+
+### **Why It Is Used**
+Recall is crucial for assessing the ability of the retrieval system to find all relevant documents. High recall ensures that users are unlikely to miss any pertinent information, which is especially important in comprehensive search scenarios.
+
+---
+
+### 7. `compute_f1_score`
+
+```python:rag-advanced/notebooks/scripts/retrieval_metrics.py
+def compute_f1_score(model_output: List[Dict[str, Any]], contexts: List[Dict[str, Any]]) -> float:
+```
+
+### **What It Does**
+Calculates the **F1-Score** for a single query. The F1-Score is the harmonic mean of Precision and Recall.
+
+### **Input**
+- `model_output` (`List[Dict[str, Any]]`): A list of retrieved documents from the model. Each dictionary contains:
+  - `'source'`: A unique identifier for the document.
+  - `'score'`: The relevance score of the document.
+- `contexts` (`List[Dict[str, Any]]`): A list of dictionaries representing the relevant contexts. Each dictionary contains:
+  - `'source'`: A unique identifier for the relevant document.
+  - `'relevance'`: The relevance score (non-zero indicates relevance).
+
+### **Output**
+- `float`: The F1-Score, providing a balance between Precision and Recall. If both Precision and Recall are `0.0`, it returns `0.0`.
+
+### **Why It Is Used**
+The F1-Score combines Precision and Recall into a single metric, offering a balanced evaluation of the retrieval system's performance. It is particularly useful when there is a need to balance the trade-off between Precision and Recall, ensuring that the system is both accurate and comprehensive.
+
+---
+
+### Additional Metrics
+
+### `llm_retrieval_scorer`
+
+```python:rag-advanced/notebooks/scripts/retrieval_metrics.py
+async def llm_retrieval_scorer(model_output: List[Dict[str, Any]], question: str) -> Dict[str, float]:
+```
+
+### **What It Does**
+Evaluates the retrieval results using a language model (LLM) and computes relevance scores, including mean relevance and relevance rank score.
+
+### **Input**
+- `model_output` (`List[Dict[str, Any]]`): The list of retrieved documents from the model.
+- `question` (`str`): The query or question for which the retrieval is being evaluated.
+
+### **Output**
+- `Dict[str, float]`: A dictionary containing:
+  - `'relevance'`: The mean relevance score.
+  - `'relevance_rank_score'`: The relevance rank score based on the position of highly relevant documents.
+
+### **Why It Is Used**
+This metric leverages a language model to assess the quality of retrieval results beyond traditional metrics. It provides insights into both the average relevance of retrieved documents and the effectiveness of their ranking, enhancing the evaluation with advanced language understanding.
+
+---
+
+### Direct Evaluation with Heuristics:
+
+Heuristics-based evaluation focuses on direct assessment without relying on ground truth answers. Here are some examples of structural checks you can implement:
+
+- Check for specific elements: Does the response contain bullet points if the user asked for a list? Does it include code snippets if the query was about code?
+- Enforce length constraints: Is the response within a reasonable length? Is it too short or too long?
+- Validate structured output: If your RAG system is expected to generate structured output (e.g., JSON), you can check if the response is a valid JSON object.
+
+These heuristics help enforce certain expectations about the output format, which can improve the robustness and reliability of your RAG system. They can catch obvious errors or inconsistencies before you move on to more sophisticated evaluation methods.
+
+### Reference-Based Evaluation with Traditional Metrics:
+
+For a more comprehensive evaluation of response quality, we can use reference-based evaluation. This involves comparing the generated response to a ground truth or reference response.
+
+Here are some common metrics used in reference-based evaluation:
+
+- Similarity Ratio: This measures the degree of overlap between the generated response and the reference response, often after normalizing the text (e.g., removing punctuation and converting to lowercase). A higher similarity ratio indicates a closer match.
+- Levenshtein Distance: This metric calculates the minimum number of edits (insertions, deletions, substitutions) needed to transform the generated response into the reference response. A lower Levenshtein distance suggests a higher similarity.
+- ROUGE and BLEU: These metrics (commonly used in machine translation and text summarization) also assess the overlap between generated text and reference text, but they consider different aspects like word sequences (ROUGE) and precision (BLEU).
+
+---
+
+## Limitations of Traditional Metrics:
+
+While traditional metrics like similarity ratio and Levenshtein distance can be useful for evaluating generated text, they have limitations when it comes to assessing the quality of responses in RAG systems.
+
+- Lack of Semantic Depth: Traditional metrics often focus on surface-level matching of words or phrases. They may not capture the deeper meaning or semantic nuances of the generated response. For example, two responses might have similar wording but convey different meanings, and traditional metrics might not be able to distinguish between them.
+- Ignoring Contextual Relevance: Traditional metrics may not adequately consider the relationship between the generated response and the user's original query. A response might be grammatically correct and contain relevant keywords, but it might not actually answer the user's question in a meaningful way.
+- Fuzzy Matching: The results of traditional metrics can sometimes be difficult to interpret because they often rely on fuzzy matching techniques. It might not be clear why a particular score was assigned or what aspects of the response contributed to that score.
+- Subjectivity: Evaluating the quality of generated text, especially in complex tasks like question answering or dialogue generation, can be inherently subjective. What one person considers a good response, another might not. Traditional metrics may struggle to capture this subjectivity.
+
+---
+
+## LLM Evaluators: A More Nuanced Approach:
+
+To overcome these limitations, we can turn to LLM evaluators. The idea is to leverage the power of LLMs to assess the quality and relevance of generated responses in a more sophisticated way.
+
+How LLM Evaluators Work:
+
+LLM evaluators are based on two key capabilities of large language models:
+
+- Text Comparison: LLMs can effectively compare different pieces of text and identify similarities and differences in meaning and style.
+- Instruction Following: LLMs can be trained to follow instructions and perform specific tasks, including evaluation.
+
+The Process:
+
+- Input: We provide the LLM evaluator with several pieces of information:
+  - The retrieved context used by the RAG system.
+  - The generated response.
+  - The user's original query.
+- Instructions/Scoring Criteria: We also give the LLM a set of instructions that outline the criteria it should use to evaluate the response. For example, we might tell the LLM to consider factors like relevance to the query, factual accuracy, coherence, and clarity.
+- Evaluation: The LLM then uses its learned internal representations of language to compare the response to the context and the query, applying the provided scoring criteria.
+- Output: The LLM outputs a score or a judgment (e.g., "good," "bad," "neutral") that reflects its assessment of the response quality.
+
+Important Considerations:
+
+- Determinism: LLM-generated scores might not be perfectly deterministic. Because LLMs are probabilistic models, they might produce slightly different scores for the same input on different runs.
+
+- Evaluating the Evaluator: A key challenge is how to evaluate the LLM evaluator itself. If we're using an LLM to judge the quality of another LLM's output, how do we know if the evaluator is reliable and accurate? We'll address this question later in the chapter.
