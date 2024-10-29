@@ -425,3 +425,97 @@ Important Considerations:
 - Determinism: LLM-generated scores might not be perfectly deterministic. Because LLMs are probabilistic models, they might produce slightly different scores for the same input on different runs.
 
 - Evaluating the Evaluator: A key challenge is how to evaluate the LLM evaluator itself. If we're using an LLM to judge the quality of another LLM's output, how do we know if the evaluator is reliable and accurate? We'll address this question later in the chapter.
+
+---
+
+## LLM Evaluators: Limitations & Solutions:
+
+Limitations 1: Non-Determinism:
+
+LLM-generated scores can be non-deterministic. This means that if you run the same evaluation multiple times, you might get slightly different scores each time. This is because LLMs are probabilistic models – their outputs are based on probabilities rather than strict rules.
+
+Solutions: Multiple Trials:
+
+To mitigate the issue of non-determinism, it's recommended to run multiple evaluation trials (e.g., 3-5) for each experiment and then average the scores. This provides a more stable and reliable estimate of the system's performance.
+
+Limitation 2: Evaluating the Evaluator:
+
+A key challenge with using LLMs as judges is determining how to evaluate the evaluator itself. If we're relying on an LLM to assess the quality of another LLM's output, how do we know if the evaluator is making accurate and reliable judgments?
+
+Solution: Dedicated Evaluation Team:
+
+Having a dedicated team or individuals focused on evaluation can significantly improve the quality and consistency of the evaluation process. This team can develop best practices, build and maintain evaluation datasets, and ensure that the LLM evaluator remains aligned with human judgment over time.
+
+---
+
+## Data Ingestion and Preprocessing
+
+<img width="386" alt="image" src="https://github.com/user-attachments/assets/0e9b5dfe-c6c7-46f1-8256-9d69651537bc">
+
+### Why is tokenization important?
+
+- Context Windows: Language models have a limited context window – the maximum number of tokens they can process at once. Accurate tokenization helps manage these windows effectively.
+- Computational Costs: The number of tokens directly influences the computational resources required to run the RAG system. Accurate token counts help estimate these costs
+
+### Why Clean the Text? Cleaning the text is vital for:
+
+- Improving Retrieval Accuracy: Removing irrelevant characters or formatting helps the retrieval system focus on the meaningful content.
+- Ensuring Smooth Tokenization: Special characters can sometimes disrupt the tokenization process, leading to errors or unexpected results.
+
+### Retrieval Methods
+
+**TF-IDF (Term Frequency-Inverse Document Frequency):** This is a basic retrieval method. It assigns weights to terms in documents based on their frequency within the document and across the entire corpus.
+
+**BM25 (Best Matching 25):** BM25 is a more advanced retrieval method that builds upon TF-IDF. It addresses some of the limitations of TF-IDF by:
+
+- Considering Document Length: BM25 normalizes the term frequency based on the length of the document, preventing longer documents from being unfairly favored.
+- Handling Term Frequency Saturation: BM25 uses a saturation function to prevent terms that appear very frequently in a document from having an overly strong influence on the relevance score.
+- Probabilistic Model: BM25 employs a probabilistic model to estimate the relevance of documents to a query, making it more robust and accurate.
+
+### The Three Pillars of Data Ingestion:
+
+We can break down the data ingestion process into three core components, or pillars:
+
+**Data Parsing:**
+
+This is the first step, where we handle the variety of formats your data might come in. Whether it's PDFs, Word documents, web pages, or code files, data parsing converts them all into a standardized format that the RAG system can understand.
+
+**Chunking:**
+
+Once we have the data in a consistent format, we need to break it down into smaller, more manageable chunks. This is crucial for efficient retrieval. Instead of searching through entire documents, the RAG system can focus on smaller chunks that are more likely to contain the relevant information.
+
+**Metadata Management:**
+
+Metadata is like adding tags or labels to your data. It provides extra information about the content without requiring the system to read through everything. This can include things like the author, date, source, topic, or keywords associated with a particular chunk of data. Metadata helps the RAG system understand the context and relevance of the information, improving retrieval accuracy.
+
+### Chunking 
+
+**Semantic Chunking (aka Grouping by Meaning) **
+
+Instead of dividing the text into fixed-length chunks, semantic chunking aims to group sentences together based on their meaning or topic.
+
+It helps with: 
+
+- Preserving Context: This method helps maintain the contextual relationships between sentences, ensuring that related information is kept together within a chunk.
+- Adaptive Chunk Sizes: Chunk sizes can vary depending on the length of the semantic units in the text, resulting in more meaningful and coherent chunks.
+- Semantic chunking can significantly improve the relevance of retrieved information. By keeping related sentences together, the RAG system is more likely to find chunks that contain the complete and relevant context for a given query.
+
+**Hierarchical Chunking:** This involves creating a hierarchy of chunks, where parent chunks provide broader context and child chunks offer more specific details. This can be useful for representing different levels of information within a document.
+
+**Small-to-Big Chunking:** This technique starts with small, focused chunks and then expands to include more context as needed. It can be particularly helpful for handling long sections of text.
+
+### Metadata
+
+Metadata is essentially data about your data. It's like the label on a jar that tells you what's inside without having to open it.
+
+In RAG systems, we typically work with two types of metadata:
+
+- Document Metadata: This provides information about the entire document, such as:
+  - Title: The title of the document.
+  - Source: Where the document came from (e.g., website, book, internal documentation).
+  - Summary: A brief overview of the document's content.
+
+- Chunk Metadata: This gives context to specific segments of text within a document, such as:
+  - Structural Information: Is this chunk a header, a paragraph, a code block, etc.?
+  - Programming Language (for Code): What programming language is used in this code chunk?
+  - Version-Specific Information: Is this chunk relevant to a specific version of a product or software?
